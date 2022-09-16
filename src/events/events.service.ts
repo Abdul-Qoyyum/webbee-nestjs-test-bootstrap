@@ -94,11 +94,7 @@ export class EventsService {
 
   @Get('events')
   async getEventsWithWorkshops() {
-    // const events = await this.eventRepository.find();
-    // const workshops = await this.workshopRepository.find();
     const [events,workshops] = await Promise.all([this.eventRepository.find(),this.workshopRepository.find()]);
-    console.log(events);
-    console.log(workshops);
     events.forEach((event: any, id) => {
       event.workshops = [];
       workshops.forEach((workshop, idx) => {
