@@ -84,17 +84,24 @@ export class MenuItemsService {
     ]
   */
   async getMenuItems() {
-    const  [parent, children ] = await Promise.all([this.menuItemRepository.find(), this.menuItemRepository.find()]);
-
-    parent.forEach((item: any) => {
-        item.children = [];
-        children.forEach(value => {
-           if(item.parentId == value.id){
-            item.children.push(value);
-           }
-        });
+    const menuItems = await this.menuItemRepository.find();
+    menuItems.forEach((item: any) => {
+        item.children = this.getMenuItemsChildrenRecursively(menuItems, item.parentId);
     })
 
-    return parent;
+    return menuItems; 
   }
+
+  getMenuItemsChildrenRecursively(items: any, parentId: number): any{
+     if(parentId === null)return [];
+
+        items.forEach((item: any) => {
+            item.children = [];
+            if(items.parentId == parentId){
+                item.children.push(item);
+            }
+            this.getMenuItemsChildrenRecursively(items.children, parentId);
+         });
+         return items;
+     }
 }
