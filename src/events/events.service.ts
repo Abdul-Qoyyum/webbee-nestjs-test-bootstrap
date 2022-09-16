@@ -1,4 +1,4 @@
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { Get, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
@@ -174,6 +174,17 @@ export class EventsService {
      */
   @Get('futureevents')
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    const [events,workshops] = await Promise.all([this.eventRepository.find({
+      where: { id: Not(1)}
+    }),this.workshopRepository.find()]);
+    events.forEach((event: any, id) => {
+      event.workshops = [];
+      workshops.forEach((workshop, idx) => {
+        if(workshop.eventId == event.id){
+          event.workshops.push(workshop);
+        }  
+      });
+    })
+    return events;
   }
 }

@@ -84,7 +84,17 @@ export class MenuItemsService {
     ]
   */
   async getMenuItems() {
-    // throw new Error('TODO in task 3');
-    return await this.menuItemRepository.find();
+    const  [parent, children ] = await Promise.all([this.menuItemRepository.find(), this.menuItemRepository.find()]);
+
+    parent.forEach((item: any) => {
+        item.children = [];
+        children.forEach(value => {
+           if(item.parentId == value.id){
+            item.children.push(value);
+           }
+        });
+    })
+
+    return parent;
   }
 }
