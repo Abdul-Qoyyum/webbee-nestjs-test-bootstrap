@@ -85,23 +85,28 @@ export class MenuItemsService {
   */
   async getMenuItems() {
     const menuItems = await this.menuItemRepository.find();
-    menuItems.forEach((item: any) => {
-        item.children = this.getMenuItemsChildrenRecursively(menuItems, item.parentId);
+    menuItems.forEach((item: any, idx) => {
+        item.children = this.getMenuItemsChildrenRecursively(menuItems, item.id, idx);
     })
-
-    return menuItems; 
+    let rootNode: any;
+    const filteredItems = menuItems.filter((item: any) => {
+        if(!item.parentId) rootNode = item;
+        return item.parentId && item.children.length > 0
+    });
+    if(rootNode)rootNode.children = filteredItems;
+    return [rootNode]; 
   }
 
-  getMenuItemsChildrenRecursively(items: any, parentId: number): any{
-     if(parentId === null)return [];
-
-        items.forEach((item: any) => {
-            item.children = [];
-            if(items.parentId == parentId){
-                item.children.push(item);
-            }
-            this.getMenuItemsChildrenRecursively(items.children, parentId);
-         });
-         return items;
+  getMenuItemsChildrenRecursively(items: any, parentId: number, index: number): any{
+     let result: any[] = [];
+     for(let j = 0; j < items.length; j++){
+        if(j == index) continue; //skip circular
+        if(items[j].parentId == parentId){
+            result.push(items[j]);
+        }
      }
+    return result;    
+  }
+
+
 }
